@@ -1,13 +1,15 @@
 package com.acme.dbo;
 
 import com.acme.dbo.config.TestConfig;
+import com.acme.dbo.controller.AccountController;
+import com.acme.dbo.controller.AccountNotFoundException;
 import com.acme.dbo.dao.AccountRepository;
 import com.acme.dbo.domain.Account;
-import com.acme.dbo.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -16,6 +18,8 @@ import java.math.BigDecimal;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,10 +28,11 @@ import static org.mockito.Mockito.when;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestConfig.class)
+@ActiveProfiles("Test")
 @TestPropertySource("classpath:application-test.properties")
 public class AccountCrudIT {
     @Autowired private AccountRepository accountRepositoryStub;
-    @Autowired private AccountService accountService;
+    @Autowired private AccountController accountController;
     private Account account;
 
     @BeforeEach
@@ -38,21 +43,21 @@ public class AccountCrudIT {
     @Test
     public void shouldGetNoAccountsWhenNoCreated() {
         when(accountRepositoryStub.findAll()).thenReturn(Collections.emptyList());
-        assertEquals(accountService.findAll(), Collections.emptyList());
+        assertEquals(accountController.findAll(), Collections.emptyList());
         verify(accountRepositoryStub).findAll();
     }
 
     @Test
-    public void shouldGetAccountWhenFindById() {
-        when(accountRepositoryStub.findById(account.getId())).thenReturn(account);
-        assertEquals(accountService.findById(account.getId()), account);
-        verify(accountRepositoryStub).findById(account.getId());
+    public void shouldGetAccountWhenFindById() throws AccountNotFoundException {
+        when(accountRepositoryStub.findById(anyInt())).thenReturn(account);
+        assertEquals(accountController.findById(account.getId()), account);
+        verify(accountRepositoryStub).findById(anyInt());
     }
 
     @Test
     public void shouldGetAccountWhenCreateAccount() {
-        when(accountRepositoryStub.create(account)).thenReturn(account);
-        assertEquals(accountService.create(account), account);
-        verify(accountRepositoryStub).create(account);
+        when(accountRepositoryStub.create(any(Account.class))).thenReturn(account);
+        assertEquals(accountController.create(account), account);
+        verify(accountRepositoryStub).create(any(Account.class));
     }
 }

@@ -17,7 +17,6 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 /**
  * see {@link org.springframework.test.context.junit.jupiter.SpringJUnitConfig} annotation
  */
@@ -31,6 +30,19 @@ public class AccountCrudSystemIT {
     @Test
     public void shouldGetNoAccountsWhenNoCreated() {
         assertTrue(accountController.findAll().isEmpty());
+    }
+
+    @Test
+    @DirtiesContext
+    public void shouldGetAccountWhenCreateAndAccountsIsNotEmpty() {
+        accountController.create(new Account(new BigDecimal("2.22")));
+        assertEquals(accountController.create(new Account(new BigDecimal("3.33"))).getId(), 1);
+    }
+
+    @Test
+    @DirtiesContext
+    public void shouldGetAccountWhenCreateAndAccountsIsEmpty() {
+        assertEquals(accountController.create(new Account(new BigDecimal("3.33"))).getId(), 0);
     }
 
     @Test
