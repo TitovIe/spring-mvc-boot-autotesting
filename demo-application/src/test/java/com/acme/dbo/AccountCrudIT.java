@@ -1,10 +1,10 @@
 package com.acme.dbo;
 
-import com.acme.dbo.config.Config;
 import com.acme.dbo.config.TestConfig;
-import com.acme.dbo.controller.AccountController;
 import com.acme.dbo.dao.AccountRepository;
 import com.acme.dbo.domain.Account;
+import com.acme.dbo.service.AccountService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +13,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 
-import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -26,14 +27,32 @@ import static org.mockito.Mockito.when;
 @TestPropertySource("classpath:application-test.properties")
 public class AccountCrudIT {
     @Autowired private AccountRepository accountRepositoryStub;
-    @Autowired private AccountController accountController;
+    @Autowired private AccountService accountService;
+    private Account account;
+
+    @BeforeEach
+    public void init() {
+        account = new Account(0, new BigDecimal("1.131"));
+    }
 
     @Test
     public void shouldGetNoAccountsWhenNoCreated() {
-        when(accountRepositoryStub.findAll()).thenReturn(
-                asList(new Account(3, new BigDecimal("3.33"))));
+        when(accountRepositoryStub.findAll()).thenReturn(Collections.emptyList());
+        assertEquals(accountService.findAll(), Collections.emptyList());
+        verify(accountRepositoryStub).findAll();
+    }
 
-        assertTrue(accountController.findAll().contains(
-                new Account(3, new BigDecimal("3.33"))));
+    @Test
+    public void shouldGetAccountWhenFindById() {
+        when(accountRepositoryStub.findById(account.getId())).thenReturn(account);
+        assertEquals(accountService.findById(account.getId()), account);
+        verify(accountRepositoryStub).findById(account.getId());
+    }
+
+    @Test
+    public void shouldGetAccountWhenCreateAccount() {
+        when(accountRepositoryStub.create(account)).thenReturn(account);
+        assertEquals(accountService.create(account), account);
+        verify(accountRepositoryStub).create(account);
     }
 }
