@@ -20,9 +20,4 @@ public class TestConfig {
         log.debug("Creating accountRepositoryStub with initial capacity {}", initCapacity);
         return mock(AccountRepository.class);
     }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
 }

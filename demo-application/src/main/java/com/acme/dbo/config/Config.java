@@ -2,6 +2,7 @@ package com.acme.dbo.config;
 
 import com.acme.dbo.dao.AccountRepository;
 import com.acme.dbo.dao.MapBackedAccountRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -24,6 +25,11 @@ public class Config implements WebApplicationInitializer {
     @Bean
     public AccountRepository accountRepository(@Value("${accounts.repo.init-capacity}") int initCapacity) {
         return new MapBackedAccountRepository(initCapacity);
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 
     @Override
